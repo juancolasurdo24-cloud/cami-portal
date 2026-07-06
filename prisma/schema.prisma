@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model CamiContent {
+  id            String   @id @default(cuid())
+  title         String
+  scheduledFor  DateTime
+  requiresVisit Boolean  @default(false)
+  storyboard    String   @default("")
+  comments      String   @default("")
+  status        String   @default("pending")
+  platform      String   @default("")
+  priority      String   @default("media")
+  businessUnit  String   @default("")
+  equipment     String   @default("")
+  location      String   @default("")
+  staging       String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([scheduledFor])
+}
