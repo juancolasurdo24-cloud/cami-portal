@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { calendarGridRange, daysBetween, formatEs, monthRange } from "@/lib/dateUtils";
 import CamiCalendarGrid from "@/components/CamiCalendarGrid";
 import CamiRodajeTable from "@/components/CamiRodajeTable";
+import CamiGrillaTab from "@/components/CamiGrillaTab";
 import type { CamiContent } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -122,7 +123,8 @@ export default async function HomePage({
   const { month, tab } = await searchParams;
   const reference = parseMonthParam(month);
   const isProgress = tab === "avance";
-  const isRodaje = tab === "rodaje";
+  const isRodaje   = tab === "rodaje";
+  const isGrilla   = tab === "grilla";
 
   const { start: mStart, end: mEnd } = monthRange(reference);
   const { start: gridStart, end: gridEnd } = calendarGridRange(reference);
@@ -160,8 +162,12 @@ export default async function HomePage({
 
       <div className="flex gap-1 rounded-xl bg-slate-100 p-1 w-fit flex-wrap">
         <Link href={`/?month=${currentMonthParam}`}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${!isProgress && !isRodaje ? "bg-white text-dismaser-navy shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${!isProgress && !isRodaje && !isGrilla ? "bg-white text-dismaser-navy shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
           📅 Calendario
+        </Link>
+        <Link href={`/?month=${currentMonthParam}&tab=grilla`}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${isGrilla ? "bg-white text-dismaser-navy shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
+          📋 Diagrama de Grilla
         </Link>
         <Link href={`/?month=${currentMonthParam}&tab=rodaje`}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${isRodaje ? "bg-white text-dismaser-navy shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
@@ -177,15 +183,23 @@ export default async function HomePage({
         <ProgressView items={monthItems} monthLabel={monthLabel} />
       ) : isRodaje ? (
         <CamiRodajeTable items={monthItems} />
+      ) : isGrilla ? (
+        <CamiGrillaTab items={monthItems} monthLabel={monthLabel} monthParam={currentMonthParam} />
       ) : (
         <>
-          <div className="flex gap-3 flex-wrap text-xs">
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-slate-600">○ Pendiente</span>
-            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-amber-700">◑ En curso</span>
-            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-700">✓ Completado</span>
-            <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-green-700">✓✓ Posteado</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap text-xs">
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-slate-600">○ Pendiente</span>
+              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-amber-700">◑ En curso</span>
+              <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-700">✓ Completado</span>
+              <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-green-700">✓✓ Posteado</span>
+            </div>
+            <Link href={`/?month=${currentMonthParam}&tab=grilla`}
+              className="ml-auto text-xs font-medium text-dismaser-navy hover:underline">
+              Ver grilla →
+            </Link>
           </div>
-          <CamiCalendarGrid days={days} items={gridItems} currentMonth={reference.getMonth()} />
+          <CamiCalendarGrid days={days} items={gridItems} currentMonth={reference.getUTCMonth()} />
           <p className="text-xs text-slate-400">Clic en un día para agregar contenido. Clic en un contenido para editar o cambiar estado.</p>
         </>
       )}
