@@ -25,7 +25,7 @@ export async function createCamiContent(formData: FormData) {
   await prisma.camiContent.create({
     data: {
       title:         String(formData.get("title") || "Sin título"),
-      scheduledFor:  new Date(y, (m ?? 1) - 1, d ?? 1),
+      scheduledFor:  new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 12)),
       requiresVisit: formData.get("requiresVisit") === "true",
       storyboard:    String(formData.get("storyboard") || ""),
       comments:      String(formData.get("comments")   || ""),
@@ -44,7 +44,7 @@ export async function updateCamiContent(id: string, formData: FormData) {
     where: { id },
     data: {
       title:         String(formData.get("title") || "Sin título"),
-      scheduledFor:  new Date(y, (m ?? 1) - 1, d ?? 1),
+      scheduledFor:  new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 12)),
       requiresVisit: formData.get("requiresVisit") === "true",
       storyboard:    String(formData.get("storyboard") || ""),
       comments:      String(formData.get("comments")   || ""),

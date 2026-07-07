@@ -129,7 +129,7 @@ export default function CamiCalendarGrid({
           {days.map((day) => {
             const key = toDateKey(day);
             const dayItems = byDate.get(key) ?? [];
-            const inMonth = day.getMonth() === currentMonth;
+            const inMonth = day.getUTCMonth() === currentMonth;
             const isToday = key === toDateKey(new Date());
 
             return (
@@ -145,7 +145,7 @@ export default function CamiCalendarGrid({
                   : inMonth ? "text-slate-700"
                   : "text-slate-300"
                 }`}>
-                  {day.getDate()}
+                  {day.getUTCDate()}
                 </div>
 
                 <div className="flex flex-col gap-1 flex-1">

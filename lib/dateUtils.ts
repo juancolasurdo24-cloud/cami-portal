@@ -22,12 +22,15 @@ export function calendarGridRange(date: Date) {
 }
 
 export function toDateKey(date: Date): string {
-  return format(date, "yyyy-MM-dd");
+  const y = date.getUTCFullYear();
+  const mo = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(date.getUTCDate()).padStart(2, "0");
+  return `${y}-${mo}-${d}`;
 }
 
 export function parseDateKey(key: string): Date {
   const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d);
+  return new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 12));
 }
 
 export function formatEs(date: Date, formatStr: string): string {
