@@ -1,10 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { CamiContent } from "@prisma/client";
-import { setCamiStatus, deleteCamiContent } from "@/app/actions/cami";
+import { setCamiStatus, deleteCamiContent, updateSingleRodajeField } from "@/app/actions/cami";
 
 const DAY_NAMES_UTC = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
@@ -64,6 +64,8 @@ function weekLabel(items: CamiContent[]) {
   return `${dStart} al ${dEnd} de ${MONTHS_ES[mEnd]}`;
 }
 
+type EditComment = { id: string; value: string } | null;
+
 export default function CamiGrillaTab({
   items,
   monthLabel,
@@ -75,6 +77,22 @@ export default function CamiGrillaTab({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [editComment, setEditComment] = useState<EditComment>(null);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (editComment && commentRef.current) commentRef.current.focus();
+  }, [editComment]);
+
+  function saveComment() {
+    if (!editComment) return;
+    const { id, value } = editComment;
+    setEditComment(null);
+    startTransition(async () => {
+      await updateSingleRodajeField(id, "comments", value);
+      router.refresh();
+    });
+  }
 
   const total     = items.length;
   const published = items.filter((i) => i.status === "published").length;
@@ -153,7 +171,8 @@ export default function CamiGrillaTab({
                   <tr className="bg-slate-50 border-b border-slate-200">
                     <th className="px-4 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide w-20">Fecha</th>
                     <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide w-24">Plataforma</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide">Título</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide w-40">Título</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide">Comentarios</th>
                     <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide w-24">Prioridad</th>
                     <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 tracking-wide w-28">Estado</th>
                     <th className="px-3 py-2 w-8"></th>
@@ -190,6 +209,33 @@ export default function CamiGrillaTab({
                           <p className="text-sm font-medium text-slate-800 leading-snug">{item.title}</p>
                           {item.requiresVisit && (
                             <p className="text-xs text-slate-400 mt-0.5">📍 Viene a grabar</p>
+                          )}
+                        </td>
+
+                        {/* Comentarios */}
+                        <td className="px-3 py-3 max-w-[220px]">
+                          {editComment?.id === item.id ? (
+                            <textarea
+                              ref={commentRef}
+                              value={editComment.value}
+                              rows={3}
+                              onChange={(e) => setEditComment({ id: item.id, value: e.target.value })}
+                              onBlur={saveComment}
+                              onKeyDown={(e) => {
+                                if (e.key === "Escape") setEditComment(null);
+                                if (e.key === "Enter" && e.metaKey) saveComment();
+                              }}
+                              className="w-full rounded border border-blue-400 px-2 py-1 text-xs outline-none ring-1 ring-blue-400 resize-none"
+                            />
+                          ) : (
+                            <span
+                              onClick={() => setEditComment({ id: item.id, value: item.comments ?? "" })}
+                              className={`cursor-text block text-xs leading-snug whitespace-pre-wrap ${
+                                item.comments ? "text-slate-600" : "text-slate-300 italic"
+                              } hover:text-dismaser-navy`}
+                            >
+                              {item.comments || "Clic para agregar…"}
+                            </span>
                           )}
                         </td>
 

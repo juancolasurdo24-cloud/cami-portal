@@ -388,7 +388,7 @@ export default function CamiCalendarGrid({
 
               {/* Acciones extra (solo edición) */}
               {isEditing && editItem && (
-                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={(e) => handleStatusCycle(editItem.id, editItem.status, e)}
@@ -397,6 +397,12 @@ export default function CamiCalendarGrid({
                   >
                     Avanzar estado →
                   </button>
+                  <a
+                    href={`/?month=${toDateKey(editItem.scheduledFor).slice(0, 7)}&tab=grilla`}
+                    className="rounded-full border border-dismaser-navy px-3 py-1 text-xs font-medium text-dismaser-navy hover:bg-dismaser-navy hover:text-white transition-colors"
+                  >
+                    📋 Ver en Grilla
+                  </a>
                   <button
                     type="button"
                     onClick={() => handleDelete(editItem.id)}

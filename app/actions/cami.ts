@@ -65,7 +65,7 @@ export async function updateRodajeFields(id: string, formData: FormData) {
 }
 
 export async function updateSingleRodajeField(id: string, field: string, value: string) {
-  const allowed = ["businessUnit", "equipment", "location", "staging", "title", "status", "platform", "priority"];
+  const allowed = ["businessUnit", "equipment", "location", "staging", "title", "status", "platform", "priority", "comments"];
   if (!allowed.includes(field)) return;
   await prisma.camiContent.update({
     where: { id },
